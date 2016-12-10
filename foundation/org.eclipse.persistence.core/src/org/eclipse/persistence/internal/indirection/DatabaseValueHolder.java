@@ -38,7 +38,7 @@ public abstract class DatabaseValueHolder implements WeavedAttributeValueHolderI
     protected Object value;
 
     /** Indicates whether the object has been read from the database or not. */
-    protected boolean isInstantiated;
+    protected volatile boolean isInstantiated;
 
     /** Stores the session for the database that contains the object. */
     protected transient AbstractSession session;
