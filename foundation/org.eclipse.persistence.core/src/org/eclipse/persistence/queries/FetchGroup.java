@@ -138,6 +138,22 @@ public class FetchGroup extends AttributeGroup {
         return getAttributeNames();
     }
 
+
+    /**
+     * INTERNAL:
+     * Called on attempt to get value of an attribute that hasn't been fetched yet.
+     * Returns an error message in case javax.persistence.EntityNotFoundException
+     * should be thrown by the calling method,
+     * null otherwise.
+     * <p>
+     * This method is typically only invoked through woven code in the
+     * persistence object introduced when {@link FetchGroupTracker} is woven
+     * into the entity.
+     */
+    public String onUnfetchedAttribute(FetchGroupTracker entity, String attributeName) {
+        return onUnfetchedAttribute(entity, attributeName, null);
+    }
+
     /**
      * INTERNAL:
      * Called on attempt to get value of an attribute that hasn't been fetched yet.
@@ -149,7 +165,7 @@ public class FetchGroup extends AttributeGroup {
      * persistence object introduced when {@link FetchGroupTracker} is woven
      * into the entity.
      */
-    public String onUnfetchedAttribute(FetchGroupTracker entity, String attributeName) {
+    public String onUnfetchedAttribute(FetchGroupTracker entity, String attributeName, FetchGroup fetchGroup) {
         if (rootEntity != null){
             return rootEntity._persistence_getFetchGroup().onUnfetchedAttribute(rootEntity, attributeName);
         }
@@ -182,6 +198,7 @@ public class FetchGroup extends AttributeGroup {
             entity._persistence_setFetchGroup(null);
             entity._persistence_setSession(null);
         }
+        query.setFetchGroup(fetchGroup);
         Object result = session.executeQuery(query);
         if (result == null) {
             // the object was not found in the db end exception will be thrown - restore the fetch group back.
